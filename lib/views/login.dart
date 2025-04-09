@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenWidth < 600;
 
     return Scaffold(
       body: Center(
@@ -35,19 +34,19 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Text & Graphics
-                    SvgPicture.asset('assets/images/logo.svg', height: 200),
+                    SvgPicture.asset('assets/images/logo2.svg', height: 200),
                     const SizedBox(height: 10),
                     Text(
                       "Login to Breeze",
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 24 : 32,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       "Welcome back!",
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 16 : 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
                     ),

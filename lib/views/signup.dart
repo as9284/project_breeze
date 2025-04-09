@@ -16,7 +16,6 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenWidth < 600;
 
     return Scaffold(
       body: Center(
@@ -40,14 +39,14 @@ class _SignupPageState extends State<SignupPage> {
                     Text(
                       "Signup to Breeze",
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 24 : 32,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       "Reorganize your life with ease",
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 16 : 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
