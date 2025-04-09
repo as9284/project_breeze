@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Text & Graphics
-                    SvgPicture.asset('assets/images/logo2.svg', height: 200),
+                    SvgPicture.asset('assets/images/task2.svg', height: 200),
                     const SizedBox(height: 10),
                     Text(
                       "Login to Breeze",

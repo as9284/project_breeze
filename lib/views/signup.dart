@@ -44,7 +44,7 @@ class _SignupPageState extends State<SignupPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Text & Graphics
-                    SvgPicture.asset('assets/images/logo.svg', height: 200),
+                    SvgPicture.asset('assets/images/task1.svg', height: 200),
                     const SizedBox(height: 10),
                     Text(
                       "Signup to Breeze",
