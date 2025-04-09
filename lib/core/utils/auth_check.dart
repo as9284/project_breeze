@@ -20,7 +20,7 @@ class AuthCheck extends StatelessWidget {
         }
 
         // If user is logged in
-        if (session != null && session.user != null) {
+        if (session != null) {
           return HomePage();
         }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:project_breeze/views/login.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -11,6 +11,36 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signUp() async {
+    final supabase = Supabase.instance.client;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    try {
+      final AuthResponse res = await supabase.auth.signUp(
+        email: email,
+        password: password,
+      );
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, "/home");
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +84,7 @@ class _SignupPageState extends State<SignupPage> {
 
                     // Email
                     TextFormField(
+                      controller: _emailController,
                       decoration: const InputDecoration(
                         labelText: "Email",
                         border: OutlineInputBorder(),
@@ -70,6 +101,7 @@ class _SignupPageState extends State<SignupPage> {
 
                     // Password
                     TextFormField(
+                      controller: _passwordController,
                       decoration: const InputDecoration(
                         labelText: "Password",
                         border: OutlineInputBorder(),
@@ -89,12 +121,7 @@ class _SignupPageState extends State<SignupPage> {
                       width: screenWidth * 0.6,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
-                            ),
-                          );
+                          Navigator.pushReplacementNamed(context, "/login");
                         },
                         child: Text("Already have an account?"),
                       ),
@@ -107,6 +134,7 @@ class _SignupPageState extends State<SignupPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Signing up...')),
                             );
+                            _signUp();
                           }
                         },
                         child: const Padding(
