@@ -11,6 +11,7 @@ Future<void> signIn(context, emailController, passwordController) async {
   String password = passwordController.text;
 
   try {
+    // ignore: unused_local_variable
     final AuthResponse res = await supabase.auth.signInWithPassword(
       email: email,
       password: password,
@@ -37,6 +38,7 @@ Future<void> signUp(context, emailController, passwordController) async {
   String password = passwordController.text;
 
   try {
+    // ignore: unused_local_variable
     final AuthResponse res = await supabase.auth.signUp(
       email: email,
       password: password,
