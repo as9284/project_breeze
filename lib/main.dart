@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:project_breeze/core/constants.dart';
-import 'package:project_breeze/core/utils/auth_check.dart';
-import 'package:project_breeze/views/home.dart';
-import 'package:project_breeze/views/login.dart';
-import 'package:project_breeze/views/signup.dart';
+import 'package:breeze/core/constants.dart';
+import 'package:breeze/core/utils/auth_check.dart';
+import 'package:breeze/views/home.dart';
+import 'package:breeze/views/login.dart';
+import 'package:breeze/views/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {

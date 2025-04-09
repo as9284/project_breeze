@@ -1,5 +1,5 @@
-name: project_breeze
-description: "A new Flutter project."
+name: breeze
+description: "Minimalistic and modern tasks app"
 publish_to: "none"
 version: 0.1.0
 
@@ -12,6 +12,7 @@ dependencies:
   supabase: ^2.6.3
   supabase_flutter: ^2.8.4
   flutter_svg: ^2.0.17
+  toastification: ^3.0.2
 
 dev_dependencies:
   flutter_test:

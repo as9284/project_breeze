@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:project_breeze/core/utils/auth_functions.dart';
+import 'package:breeze/core/utils/auth_functions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -109,10 +109,6 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState?.validate() ?? false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Logging in...')),
-                            );
-
                             signIn(
                               context,
                               _emailController,

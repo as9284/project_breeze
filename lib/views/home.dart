@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_breeze/core/utils/auth_functions.dart';
+import 'package:breeze/core/utils/auth_functions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

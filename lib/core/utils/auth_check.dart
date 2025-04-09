@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
-import "package:project_breeze/views/home.dart";
-import "package:project_breeze/views/signup.dart";
+import "package:breeze/views/home.dart";
+import "package:breeze/views/signup.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 
 class AuthCheck extends StatelessWidget {

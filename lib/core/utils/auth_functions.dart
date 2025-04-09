@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:breeze/core/utils/toaster_helpers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:toastification/toastification.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -14,11 +16,18 @@ Future<void> signIn(context, emailController, passwordController) async {
       password: password,
     );
 
+    showToast(
+      context: context,
+      message: "Welcome back! :D",
+      type: ToastificationType.success,
+    );
     Navigator.pushReplacementNamed(context, "/home");
   } catch (e) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
+    showToast(
+      context: context,
+      message: "Error: $e",
+      type: ToastificationType.error,
+    );
   }
 }
 
@@ -33,11 +42,18 @@ Future<void> signUp(context, emailController, passwordController) async {
       password: password,
     );
 
+    showToast(
+      context: context,
+      message: "Welcome to Breeze! :D",
+      type: ToastificationType.success,
+    );
     Navigator.pushReplacementNamed(context, "/home");
   } catch (e) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
+    showToast(
+      context: context,
+      message: "Error: $e",
+      type: ToastificationType.error,
+    );
   }
 }
 
@@ -45,5 +61,10 @@ Future<void> signUp(context, emailController, passwordController) async {
 Future<void> signOut(context) async {
   await supabase.auth.signOut();
 
+  showToast(
+    context: context,
+    message: "See you soon! :)",
+    type: ToastificationType.success,
+  );
   Navigator.pushReplacementNamed(context, "/signup");
 }
