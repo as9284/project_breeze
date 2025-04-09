@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:project_breeze/core/utils/auth_functions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,15 +9,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final supabase = Supabase.instance.client;
-
-  Future<void> _signOut() async {
-    await supabase.auth.signOut();
-
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, "/signup");
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +20,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             ElevatedButton(
               onPressed: () {
-                _signOut();
+                signOut(context);
               },
               child: Text("Sign Out"),
             ),

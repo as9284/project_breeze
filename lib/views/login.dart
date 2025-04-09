@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:project_breeze/core/utils/auth_functions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,26 +20,6 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  Future<void> _signIn() async {
-    final supabase = Supabase.instance.client;
-    String email = _emailController.text;
-    String password = _passwordController.text;
-
-    try {
-      final AuthResponse res = await supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, "/home");
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
-    }
   }
 
   @override
@@ -133,7 +113,11 @@ class _LoginPageState extends State<LoginPage> {
                               const SnackBar(content: Text('Logging in...')),
                             );
 
-                            _signIn();
+                            signIn(
+                              context,
+                              _emailController,
+                              _passwordController,
+                            );
                           }
                         },
                         child: const Padding(
