@@ -1,3 +1,3 @@
-# project_breeze
+# Project Breeze
 
-A new Flutter project.
+Modern and minimalistic todo app for Android using Flutter and Supabase.
