@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   Timer? _debounceTimer;
   String _searchQuery = '';
 
+  // Function to fetch tasks
   Future<List<Map<String, dynamic>>> _fetchTodos() async {
     final response = await Supabase.instance.client
         .from('todos')
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> {
     return List<Map<String, dynamic>>.from(response);
   }
 
+  // Function to add a new task
   Future<void> _addTask() async {
     final text = _taskController.text.trim();
     if (text.isNotEmpty) {
@@ -51,6 +53,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  // Function to show a confirmation dialogue
   Future<bool?> _showConfirmDialog(String title) {
     return showDialog<bool>(
       context: context,
@@ -75,6 +78,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Function to open a new task page with the corresponding data
   void _openTaskPage(String title) {
     Navigator.push(
       context,
@@ -87,10 +91,12 @@ class _HomePageState extends State<HomePage> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
+  // Function to reload the page
   void _reloadTasks() {
     setState(() {});
   }
 
+  // Function to debounce search to prevent API spam
   void _onSearchChanged(String query) {
     if (_debounceTimer?.isActive ?? false) {
       _debounceTimer?.cancel();
