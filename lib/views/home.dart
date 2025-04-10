@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:breeze/core/utils/auth_functions.dart';
 import 'package:breeze/views/task_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -118,7 +119,12 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
+          IconButton(
+            onPressed: () {
+              signOut(context);
+            },
+            icon: const Icon(Icons.settings),
+          ),
         ],
       ),
       body: Stack(

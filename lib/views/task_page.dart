@@ -82,6 +82,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           .eq('id', _task!['id']);
 
       widget.onTaskCompleted();
+
+      if (!mounted) return;
       Navigator.pop(context);
     }
   }
