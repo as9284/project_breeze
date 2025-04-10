@@ -8,6 +8,8 @@ void showToast({
   required ToastificationType type,
   Color? primaryColor,
 }) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
   toastification.show(
     context: context,
     primaryColor:
@@ -19,5 +21,10 @@ void showToast({
     showProgressBar: true,
     type: type,
     title: Text(message),
+    backgroundColor:
+        isDark
+            ? const Color.fromARGB(100, 0, 0, 0)
+            : const Color.fromARGB(100, 255, 255, 255),
+    foregroundColor: isDark ? Colors.white : Colors.black,
   );
 }
