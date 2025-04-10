@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TaskDetailPage extends StatefulWidget {
-  final String title;
   final VoidCallback onTaskCompleted;
+  final String taskId;
+  final String title;
 
   const TaskDetailPage({
     super.key,
+    required this.taskId,
     required this.title,
     required this.onTaskCompleted,
   });
@@ -30,7 +32,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         await Supabase.instance.client
             .from('todos')
             .select()
-            .eq('title', widget.title)
+            .eq('id', widget.taskId)
             .maybeSingle();
 
     if (result != null) {
@@ -91,7 +93,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(_task?['title'] ?? "Task")),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child:

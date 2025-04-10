@@ -43,9 +43,6 @@ class _HomePageState extends State<HomePage> {
 
       _taskController.clear();
       setState(() {});
-
-      if (!mounted) return;
-      FocusScope.of(context).requestFocus(FocusNode());
     }
   }
 
@@ -80,16 +77,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Function to open a new task page with the corresponding data
-  void _openTaskPage(String title) {
+  void _openTaskPage(Map<String, dynamic> task) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder:
-            (_) => TaskDetailPage(title: title, onTaskCompleted: _reloadTasks),
+            (_) => TaskDetailPage(
+              taskId: task['id'],
+              title: task['title'],
+              onTaskCompleted: _reloadTasks,
+            ),
       ),
     );
-
-    FocusScope.of(context).requestFocus(FocusNode());
   }
 
   // Function to reload the page
@@ -163,14 +162,14 @@ class _HomePageState extends State<HomePage> {
                     background: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: Colors.redAccent,
+                        color: const Color.fromARGB(255, 0, 166, 192),
                       ),
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 20),
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     child: InkWell(
-                      onTap: () => _openTaskPage(task['title']),
+                      onTap: () => _openTaskPage(task),
                       borderRadius: BorderRadius.circular(8),
                       child: ListTile(
                         title: Text(
@@ -249,7 +248,6 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: TextField(
-                          focusNode: FocusNode(),
                           controller: _taskController,
                           decoration: InputDecoration(
                             hintText: "Add a task...",
