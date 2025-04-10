@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:breeze/core/utils/auth_functions.dart';
 import 'package:breeze/views/task_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -111,6 +110,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -120,7 +121,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             onPressed: () {
-              signOut(context);
+              Navigator.pushNamed(context, "/settings");
             },
             icon: const Icon(Icons.settings),
           ),
@@ -148,7 +149,7 @@ class _HomePageState extends State<HomePage> {
               return ListView.separated(
                 padding: const EdgeInsets.only(
                   top: 90,
-                  bottom: 80,
+                  bottom: 90,
                   left: 10,
                   right: 10,
                 ),
@@ -204,10 +205,14 @@ class _HomePageState extends State<HomePage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
+                    // With dynamic colors like this:
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(245, 250, 252, 0.8),
+                      color:
+                          isDark
+                              ? Colors.black.withValues(alpha: 0.5)
+                              : const Color.fromRGBO(245, 250, 252, 0.8),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
@@ -237,13 +242,16 @@ class _HomePageState extends State<HomePage> {
             bottom: 0,
             child: ClipRRect(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 10,
                   ),
-                  color: const Color.fromRGBO(245, 250, 252, 0.8),
+                  color:
+                      isDark
+                          ? Colors.black.withValues(alpha: 0.5)
+                          : const Color.fromRGBO(245, 250, 252, 0.8),
                   child: Row(
                     children: [
                       Expanded(

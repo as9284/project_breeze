@@ -93,7 +93,12 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_task?['title'] ?? "Task")),
+      appBar: AppBar(
+        title: Text(
+          _task?['title'] ?? "Task",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child:
