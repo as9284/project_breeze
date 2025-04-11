@@ -45,36 +45,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _deleteTask(String id) async {
-    await Supabase.instance.client.from('todos').delete().eq('id', id);
-    setState(() {});
-  }
-
-  // Function to show a confirmation dialogue
-  Future<bool?> _showConfirmDialog(String title) {
-    return showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete Task'),
-            content: Text('Are you sure you want to delete "$title"?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
-
   // Function to open a new task page with the corresponding data
   void _openTaskPage(Map<String, dynamic> task) {
     Navigator.push(
@@ -156,35 +126,21 @@ class _HomePageState extends State<HomePage> {
                 itemCount: filtered.length,
                 itemBuilder: (context, index) {
                   final task = filtered[index];
-                  return Dismissible(
-                    key: ValueKey(task['id']),
-                    confirmDismiss: (_) => _showConfirmDialog(task['title']),
-                    onDismissed: (_) => _deleteTask(task['id']),
-                    background: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: const Color.fromARGB(255, 0, 166, 192),
+                  return InkWell(
+                    onTap: () => _openTaskPage(task),
+                    borderRadius: BorderRadius.circular(8),
+                    child: ListTile(
+                      title: Text(
+                        task['title'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
                       ),
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    child: InkWell(
-                      onTap: () => _openTaskPage(task),
-                      borderRadius: BorderRadius.circular(8),
-                      child: ListTile(
-                        title: Text(
-                          task['title'],
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                        tileColor: const Color.fromARGB(255, 0, 103, 118),
-                        minVerticalPadding: 20,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                      tileColor: const Color.fromARGB(255, 0, 103, 118),
+                      minVerticalPadding: 20,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   );
