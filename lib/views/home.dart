@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       color:
                           isDark
-                              ? Colors.black.withValues(alpha: 0.5)
+                              ? Colors.black.withValues(alpha: 0.01)
                               : const Color.fromRGBO(245, 250, 252, 0.8),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   color:
                       isDark
-                          ? Colors.black.withValues(alpha: 0.5)
+                          ? Colors.black.withValues(alpha: 0.01)
                           : const Color.fromRGBO(245, 250, 252, 0.8),
                   child: Row(
                     children: [
