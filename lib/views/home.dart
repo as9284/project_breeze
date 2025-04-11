@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> {
 
               return ListView.separated(
                 padding: const EdgeInsets.only(
-                  top: 90,
+                  top: 100,
                   bottom: 90,
                   left: 10,
                   right: 10,
@@ -98,31 +98,28 @@ class _HomePageState extends State<HomePage> {
                 itemCount: filtered.length,
                 itemBuilder: (context, index) {
                   final task = filtered[index];
-                  return InkWell(
-                    onTap: () => _openTaskPage(task),
-                    borderRadius: BorderRadius.circular(8),
-                    child: ListTile(
-                      trailing: IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.check),
+                  return FilledButton.tonal(
+                    style: FilledButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 30,
                       ),
-                      title: Text(
-                        task['title'],
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                      tileColor: const Color.fromARGB(255, 0, 103, 118),
-                      minVerticalPadding: 20,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    ),
+                    onPressed: () {
+                      _openTaskPage(task);
+                    },
+                    child: Text(
+                      task['title'].toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   );
                 },
                 separatorBuilder:
-                    (context, index) => const SizedBox(height: 10),
+                    (context, index) => const SizedBox(height: 15),
               );
             },
           ),
@@ -201,10 +198,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      FilledButton(
+                      FilledButton.icon(
+                        icon: Icon(Icons.add),
+                        label: Text("Add"),
                         onPressed:
                             () => {addTask(_taskController), setState(() {})},
-                        child: const Text("Add"),
                       ),
                     ],
                   ),
