@@ -72,7 +72,33 @@ class _SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(Icons.logout),
                   title: const Text("Log Out"),
                   onTap: () async {
-                    signOut(context);
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (_) => AlertDialog(
+                            title: const Text("Logout from Account"),
+                            content: const Text(
+                              "Are you sure you want to logout?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text(
+                                  "Logout",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                    );
+
+                    if (confirm == true) {
+                      signOut(context);
+                    }
                   },
                 ),
                 ListTile(

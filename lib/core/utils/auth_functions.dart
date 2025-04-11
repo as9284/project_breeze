@@ -60,13 +60,18 @@ Future<void> signUp(context, emailController, passwordController) async {
 }
 
 // Logout function
-Future<void> signOut(context) async {
+Future<void> signOut(BuildContext context) async {
   await supabase.auth.signOut();
+
+  if (!context.mounted) return;
 
   showToast(
     context: context,
     message: "See you soon! :)",
     type: ToastificationType.success,
   );
+
+  if (!context.mounted) return;
+
   Navigator.pushReplacementNamed(context, "/signup");
 }
