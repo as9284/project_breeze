@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:breeze/core/utils/task_functions.dart';
 import 'package:breeze/views/task_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,34 +16,6 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
   String _searchQuery = '';
-
-  // Function to fetch tasks
-  Future<List<Map<String, dynamic>>> _fetchTodos() async {
-    final response = await Supabase.instance.client
-        .from('todos')
-        .select()
-        .order('created_at', ascending: false);
-
-    return List<Map<String, dynamic>>.from(response);
-  }
-
-  // Function to add a new task
-  Future<void> _addTask() async {
-    final text = _taskController.text.trim();
-    if (text.isNotEmpty) {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-
-      await Supabase.instance.client.from('todos').insert({
-        'title': text,
-        'description': '',
-        'is_complete': false,
-        'user_id': userId,
-      });
-
-      _taskController.clear();
-      setState(() {});
-    }
-  }
 
   // Function to open a new task page with the corresponding data
   void _openTaskPage(Map<String, dynamic> task) {
@@ -100,7 +72,7 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           FutureBuilder<List<Map<String, dynamic>>>(
-            future: _fetchTodos(),
+            future: fetchTodos(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -130,6 +102,10 @@ class _HomePageState extends State<HomePage> {
                     onTap: () => _openTaskPage(task),
                     borderRadius: BorderRadius.circular(8),
                     child: ListTile(
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.check),
+                      ),
                       title: Text(
                         task['title'],
                         style: const TextStyle(
@@ -226,7 +202,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(width: 8),
                       FilledButton(
-                        onPressed: _addTask,
+                        onPressed:
+                            () => {addTask(_taskController), setState(() {})},
                         child: const Text("Add"),
                       ),
                     ],

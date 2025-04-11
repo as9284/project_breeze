@@ -1,3 +1,4 @@
+import 'package:breeze/core/utils/task_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -52,50 +53,12 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         .eq('id', _task!['id']);
   }
 
-  Future<void> _completeTask() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text("Complete Task"),
-            content: Text(
-              'Are you sure you want to mark "${widget.title}" as complete and remove it?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  "Complete",
-                  style: TextStyle(color: Colors.green),
-                ),
-              ),
-            ],
-          ),
-    );
-
-    if (confirm == true && _task != null) {
-      await Supabase.instance.client
-          .from('todos')
-          .delete()
-          .eq('id', _task!['id']);
-
-      widget.onTaskCompleted();
-
-      if (!mounted) return;
-      Navigator.pop(context);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _task?['title'] ?? "Task",
+          _task?['title'] ?? "",
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
@@ -128,7 +91,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     ),
                     const SizedBox(height: 30),
                     FilledButton.icon(
-                      onPressed: _completeTask,
+                      onPressed: () => completeTask(context, widget, _task),
                       icon: const Icon(Icons.check_circle),
                       label: const Text("Complete Task"),
                       style: FilledButton.styleFrom(
