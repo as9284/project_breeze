@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                         filled: true,
                         fillColor: const Color.fromRGBO(245, 250, 252, 0),
                       ),
-                      onChanged: _onSearchChanged, // Use the debounce method
+                      onChanged: _onSearchChanged,
                     ),
                   ),
                 ),
