@@ -17,6 +17,9 @@ class _HomePageState extends State<HomePage> {
   Timer? _debounceTimer;
   String _searchQuery = '';
 
+  final FocusNode _searchFocusNode = FocusNode();
+  final FocusNode _taskFocusNode = FocusNode();
+
   // Function to open a new task page with the corresponding data
   void _openTaskPage(Map<String, dynamic> task) {
     Navigator.push(
@@ -145,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
-                      focusNode: FocusNode(),
+                      focusNode: _searchFocusNode,
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Search tasks...',
@@ -185,6 +188,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: TextField(
+                          focusNode: _taskFocusNode,
                           controller: _taskController,
                           decoration: InputDecoration(
                             hintText: "Add a task...",
@@ -202,7 +206,11 @@ class _HomePageState extends State<HomePage> {
                         icon: Icon(Icons.add),
                         label: Text("Add"),
                         onPressed:
-                            () => {addTask(_taskController), setState(() {})},
+                            () => {
+                              addTask(_taskController),
+                              setState(() {}),
+                              FocusScope.of(context).unfocus(),
+                            },
                       ),
                     ],
                   ),
