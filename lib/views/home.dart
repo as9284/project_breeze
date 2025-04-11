@@ -35,8 +35,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Function to reload the page
-  void _reloadTasks() {
+  // Function to reload the page and update the UI
+  Future<void> _reloadTasks() async {
     setState(() {});
   }
 
@@ -205,12 +205,11 @@ class _HomePageState extends State<HomePage> {
                       FilledButton.icon(
                         icon: Icon(Icons.add),
                         label: Text("Add"),
-                        onPressed:
-                            () => {
-                              addTask(_taskController),
-                              setState(() {}),
-                              FocusScope.of(context).unfocus(),
-                            },
+                        onPressed: () async {
+                          await addTask(_taskController);
+                          await _reloadTasks();
+                          FocusScope.of(context).unfocus();
+                        },
                       ),
                     ],
                   ),
