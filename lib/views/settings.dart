@@ -76,7 +76,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       context: context,
                       builder:
                           (_) => AlertDialog(
-                            title: const Text("Logout from Account"),
+                            title: const Text("Logout"),
                             content: const Text(
                               "Are you sure you want to logout?",
                             ),
