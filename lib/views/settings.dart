@@ -1,6 +1,8 @@
 import 'package:breeze/core/utils/auth_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SettingsPage extends StatefulWidget {
   final void Function(bool) onThemeChanged;
@@ -93,11 +95,26 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
               );
 
+              // Delete user function
               if (confirm == true) {
-                final supabase = Supabase.instance.client;
-                final userId = Supabase.instance.client.auth.currentUser?.id;
+                final user = Supabase.instance.client.auth.currentUser;
 
-                if (userId != null) {}
+                if (user != null) {
+                  print('Deleting user with ID: ${user.id}');
+
+                  final response = await http.delete(
+                    Uri.parse(
+                      'https://xnlydvwnpnbbzduagtzb.supabase.co/functions/v1/delete-user',
+                    ),
+                    headers: {'Content-Type': 'application/json'},
+                    body: json.encode({'userId': user.id}),
+                  );
+
+                  if (response.statusCode == 200) {
+                    // Sign out the user locally
+                    await Supabase.instance.client.auth.signOut();
+                  }
+                }
               }
             },
           ),
