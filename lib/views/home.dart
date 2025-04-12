@@ -286,6 +286,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: TextField(
                             focusNode: _taskFocusNode,
                             controller: _taskController,
+                            onSubmitted:
+                                (_) async => {
+                                  addTask(_taskController),
+                                  await _reloadTasks(),
+                                  FocusScope.of(context).unfocus(),
+                                },
                             decoration: InputDecoration(
                               hintText: "Add a task...",
                               border: OutlineInputBorder(

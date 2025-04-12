@@ -1,7 +1,7 @@
 name: breeze
 description: "Minimalistic and modern tasks app"
 publish_to: "none"
-version: 1.2.3
+version: 1.2.5
 
 environment:
   sdk: ^3.7.2
