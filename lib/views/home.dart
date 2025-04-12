@@ -288,7 +288,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             controller: _taskController,
                             onSubmitted:
                                 (_) async => {
-                                  addTask(_taskController),
+                                  await addTask(_taskController),
                                   await _reloadTasks(),
                                   FocusScope.of(context).unfocus(),
                                 },
