@@ -92,7 +92,7 @@ BEGIN
             VALUE "CompanyName", "AS" "\0"
             VALUE "FileDescription", "Breeze" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "project_breeze" "\0"
+            VALUE "InternalName", "Breeze" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 AS. All rights reserved." "\0"
             VALUE "OriginalFilename", "breeze.exe" "\0"
             VALUE "ProductName", "Breeze" "\0"
