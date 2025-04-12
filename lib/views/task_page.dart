@@ -72,10 +72,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _task?['title'].toUpperCase() ?? "", // Display task title in AppBar
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        title: Text("Task", style: TextStyle(fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
         child: Padding(
