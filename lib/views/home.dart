@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final TextEditingController _taskController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
@@ -20,7 +20,6 @@ class _HomePageState extends State<HomePage> {
   final FocusNode _searchFocusNode = FocusNode();
   final FocusNode _taskFocusNode = FocusNode();
 
-  // Function to open a new task page with the corresponding data
   void _openTaskPage(Map<String, dynamic> task) {
     Navigator.push(
       context,
@@ -35,12 +34,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Function to reload the page and update the UI
   Future<void> _reloadTasks() async {
     setState(() {});
   }
 
-  // Function to debounce search to prevent API spam
   void _onSearchChanged(String query) {
     if (_debounceTimer?.isActive ?? false) {
       _debounceTimer?.cancel();
@@ -57,167 +54,267 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Breeze",
-          style: TextStyle(fontWeight: FontWeight.w600),
+    return DefaultTabController(
+      length: 2, // 👈 Two tabs: Tasks & Completed
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Breeze",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "/settings");
+              },
+              icon: const Icon(Icons.settings),
+            ),
+          ],
+          bottom: const TabBar(
+            tabs: [Tab(text: 'Tasks'), Tab(text: 'Completed')],
+          ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, "/settings");
-            },
-            icon: const Icon(Icons.settings),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: fetchTodos(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+        body: Stack(
+          children: [
+            TabBarView(
+              children: [
+                // ✅ Tasks Tab
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: fetchTodos(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-              final todos = snapshot.data ?? [];
-              final filtered =
-                  todos
-                      .where(
-                        (task) => task['title'].toLowerCase().contains(
-                          _searchQuery.toLowerCase(),
+                    final todos = snapshot.data ?? [];
+
+                    // Filter for tasks not completed
+                    final filtered =
+                        todos
+                            .where(
+                              (task) =>
+                                  !(task['is_complete'] ?? false) &&
+                                  task['title'].toLowerCase().contains(
+                                    _searchQuery.toLowerCase(),
+                                  ),
+                            )
+                            .toList();
+
+                    if (filtered.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No tasks found.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      )
-                      .toList();
+                      );
+                    }
 
-              return ListView.separated(
-                padding: const EdgeInsets.only(
-                  top: 100,
-                  bottom: 90,
-                  left: 10,
-                  right: 10,
+                    return ListView.separated(
+                      padding: const EdgeInsets.only(
+                        top: 100,
+                        bottom: 90,
+                        left: 10,
+                        right: 10,
+                      ),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final task = filtered[index];
+                        return FilledButton.tonal(
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 30,
+                            ),
+                          ),
+                          onPressed: () {
+                            _openTaskPage(task);
+                          },
+                          child: Text(
+                            task['title'].toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                      separatorBuilder:
+                          (context, index) => const SizedBox(height: 15),
+                    );
+                  },
                 ),
-                itemCount: filtered.length,
-                itemBuilder: (context, index) {
-                  final task = filtered[index];
-                  return FilledButton.tonal(
-                    style: FilledButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 30,
-                      ),
-                    ),
-                    onPressed: () {
-                      _openTaskPage(task);
-                    },
-                    child: Text(
-                      task['title'].toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder:
-                    (context, index) => const SizedBox(height: 15),
-              );
-            },
-          ),
 
-          // Search Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
+                // ✅ Completed Tab
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: fetchTodos(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final todos = snapshot.data ?? [];
+
+                    // Filter only completed tasks
+                    final completed =
+                        todos
+                            .where(
+                              (task) =>
+                                  (task['is_complete'] ?? false) &&
+                                  task['title'].toLowerCase().contains(
+                                    _searchQuery.toLowerCase(),
+                                  ),
+                            )
+                            .toList();
+
+                    if (completed.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No completed tasks yet.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      padding: const EdgeInsets.only(
+                        top: 100,
+                        bottom: 90,
+                        left: 10,
+                        right: 10,
+                      ),
+                      itemCount: completed.length,
+                      itemBuilder: (context, index) {
+                        final task = completed[index];
+                        return Opacity(
+                          opacity: 0.6,
+                          child: FilledButton.tonal(
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 20,
+                                horizontal: 30,
+                              ),
+                            ),
+                            onPressed: () {
+                              _openTaskPage(task);
+                            },
+                            child: Text(
+                              task['title'].toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                overflow: TextOverflow.ellipsis,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      separatorBuilder:
+                          (context, index) => const SizedBox(height: 15),
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            // 🔍 Search Bar (above TabView)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color:
+                            isDark
+                                ? Colors.black.withValues(alpha: 0.01)
+                                : const Color.fromRGBO(245, 250, 252, 0.8),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        focusNode: _searchFocusNode,
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search tasks...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: const Color.fromRGBO(245, 250, 252, 0),
+                        ),
+                        onChanged: _onSearchChanged,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ➕ Task Input (bottom area)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    // With dynamic colors like this:
-                    decoration: BoxDecoration(
-                      color:
-                          isDark
-                              ? Colors.black.withValues(alpha: 0.01)
-                              : const Color.fromRGBO(245, 250, 252, 0.8),
-                      borderRadius: BorderRadius.circular(12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
                     ),
-                    child: TextField(
-                      focusNode: _searchFocusNode,
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search tasks...',
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: const Color.fromRGBO(245, 250, 252, 0),
-                      ),
-                      onChanged: _onSearchChanged,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Task Input
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  color:
-                      isDark
-                          ? Colors.black.withValues(alpha: 0.01)
-                          : const Color.fromRGBO(245, 250, 252, 0.8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          focusNode: _taskFocusNode,
-                          controller: _taskController,
-                          decoration: InputDecoration(
-                            hintText: "Add a task...",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
+                    color:
+                        isDark
+                            ? Colors.black.withValues(alpha: 0.01)
+                            : const Color.fromRGBO(245, 250, 252, 0.8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            focusNode: _taskFocusNode,
+                            controller: _taskController,
+                            decoration: InputDecoration(
+                              hintText: "Add a task...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: const Color.fromRGBO(245, 250, 252, 0),
                             ),
-                            filled: true,
-                            fillColor: const Color.fromRGBO(245, 250, 252, 0),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      FilledButton.icon(
-                        icon: Icon(Icons.add),
-                        label: Text("Add"),
-                        onPressed: () async {
-                          await addTask(_taskController);
-                          await _reloadTasks();
-                          FocusScope.of(context).unfocus();
-                        },
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        FilledButton.icon(
+                          icon: const Icon(Icons.add),
+                          label: const Text("Add"),
+                          onPressed: () async {
+                            await addTask(_taskController);
+                            await _reloadTasks();
+                            FocusScope.of(context).unfocus();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

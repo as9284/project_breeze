@@ -9,8 +9,9 @@ Future<void> completeTask(context, widget, task) async {
         (_) => AlertDialog(
           title: const Text("Complete Task"),
           content: Text(
-            'Are you sure you want to mark "${widget.title}" as complete and remove it?',
+            'Are you sure you want to mark "${widget.title}" as complete?',
           ),
+
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -28,7 +29,10 @@ Future<void> completeTask(context, widget, task) async {
   );
 
   if (confirm == true && task != null) {
-    await Supabase.instance.client.from('todos').delete().eq('id', task!['id']);
+    await Supabase.instance.client
+        .from('todos')
+        .update({'is_complete': true})
+        .eq('id', task['id']);
 
     widget.onTaskCompleted();
     Navigator.pop(context);

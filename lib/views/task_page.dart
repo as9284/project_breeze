@@ -73,6 +73,51 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     });
   }
 
+  void _confirmDelete(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Delete Task"),
+            content: Text(
+              'Are you sure you want to permanently delete "${widget.title}"?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await _deleteTask();
+                  Navigator.pop(context, true);
+                },
+                child: const Text(
+                  "Delete",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      Navigator.pop(context);
+    }
+  }
+
+  Future<void> _deleteTask() async {
+    if (_task == null) return;
+
+    await Supabase.instance.client
+        .from('todos')
+        .delete()
+        .eq('id', _task!['id']);
+    widget.onTaskCompleted();
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,69 +192,108 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                                   ),
                               const SizedBox(height: 30),
                               const Spacer(), // This will push the buttons to the bottom
-                              // Buttons
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (_isEditing)
-                                    ElevatedButton.icon(
-                                      onPressed: _saveEdits,
-                                      icon: const Icon(Icons.save),
-                                      label: const Text("Save"),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 30,
-                                          vertical: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  if (_isEditing) const SizedBox(width: 20),
-                                  if (_isEditing)
-                                    TextButton(
-                                      onPressed: _cancelEdits,
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 30,
-                                          vertical: 20,
-                                        ),
-                                      ),
-                                      child: const Text("Cancel"),
-                                    ),
-                                  if (!_isEditing)
-                                    ElevatedButton.icon(
-                                      onPressed: () {
-                                        setState(() {
-                                          _isEditing = true;
-                                        });
-                                      },
-                                      icon: const Icon(Icons.edit),
-                                      label: const Text("Edit"),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 30,
-                                          vertical: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  if (!_isEditing) const SizedBox(width: 20),
-                                  if (!_isEditing)
-                                    FilledButton.icon(
-                                      onPressed:
-                                          () => completeTask(
-                                            context,
-                                            widget,
-                                            _task,
+                              Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Buttons (conditional rendering based on completion)
+                                    if (_task!['is_complete'] == true)
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          // Show only the delete button if the task is complete
+                                          ElevatedButton.icon(
+                                            onPressed:
+                                                () => _confirmDelete(context),
+                                            icon: const Icon(Icons.delete),
+                                            label: const Text("Delete"),
+                                            style: ElevatedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 30,
+                                                    vertical: 20,
+                                                  ),
+                                            ),
                                           ),
-                                      icon: const Icon(Icons.check_circle),
-                                      label: const Text("Complete"),
-                                      style: FilledButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 14,
-                                        ),
+                                        ],
+                                      )
+                                    else
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          // Show the Edit and Complete buttons if the task is not complete
+                                          if (_isEditing)
+                                            ElevatedButton.icon(
+                                              onPressed: _saveEdits,
+                                              icon: const Icon(Icons.save),
+                                              label: const Text("Save"),
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 30,
+                                                      vertical: 20,
+                                                    ),
+                                              ),
+                                            ),
+                                          if (_isEditing)
+                                            const SizedBox(width: 20),
+                                          if (_isEditing)
+                                            TextButton(
+                                              onPressed: _cancelEdits,
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 30,
+                                                      vertical: 20,
+                                                    ),
+                                              ),
+                                              child: const Text("Cancel"),
+                                            ),
+                                          if (!_isEditing)
+                                            ElevatedButton.icon(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _isEditing = true;
+                                                });
+                                              },
+                                              icon: const Icon(Icons.edit),
+                                              label: const Text("Edit"),
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 30,
+                                                      vertical: 20,
+                                                    ),
+                                              ),
+                                            ),
+                                          if (!_isEditing)
+                                            const SizedBox(width: 20),
+                                          if (!_isEditing)
+                                            FilledButton.icon(
+                                              onPressed:
+                                                  () => completeTask(
+                                                    context,
+                                                    widget,
+                                                    _task,
+                                                  ),
+                                              icon: const Icon(
+                                                Icons.check_circle,
+                                              ),
+                                              label: const Text("Complete"),
+                                              style: FilledButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 24,
+                                                      vertical: 14,
+                                                    ),
+                                              ),
+                                            ),
+                                        ],
                                       ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
                               const SizedBox(height: 20),
                             ],
