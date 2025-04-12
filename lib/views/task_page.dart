@@ -186,8 +186,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                                       label: const Text("Edit"),
                                       style: ElevatedButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 14,
+                                          horizontal: 30,
+                                          vertical: 20,
                                         ),
                                       ),
                                     ),
