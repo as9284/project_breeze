@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.5.3
   url_launcher: ^6.3.1
   desktop_window: ^0.4.2
+  msix: ^3.16.8
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +30,10 @@ flutter:
   assets:
     - assets/images/
     - assets/icon/
+
+msix_config:
+  display_name: Breeze
+  publisher_display_name: AS
+  identity_name: com.as.project-breeze
+  msix_version: 1.2.5.0
+  logo_path: windows/runner/resources/app_icon.ico
