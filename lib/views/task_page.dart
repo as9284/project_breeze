@@ -285,8 +285,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                                               style: FilledButton.styleFrom(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                      horizontal: 24,
-                                                      vertical: 14,
+                                                      horizontal: 30,
+                                                      vertical: 20,
                                                     ),
                                               ),
                                             ),
