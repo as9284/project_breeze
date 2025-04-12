@@ -8,12 +8,20 @@ import 'package:breeze/views/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:desktop_window/desktop_window.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    await DesktopWindow.setWindowSize(const Size(600, 900));
+    await DesktopWindow.setMinWindowSize(const Size(600, 900));
+    await DesktopWindow.setMaxWindowSize(const Size(600, 900));
+  }
 
   runApp(const MainApp());
 }
