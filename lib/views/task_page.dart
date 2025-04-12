@@ -22,6 +22,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   Map<String, dynamic>? _task;
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -46,110 +47,179 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     }
   }
 
-  Future<void> _updateTaskTitle() async {
+  Future<void> _saveEdits() async {
     if (_task == null) return;
 
     await Supabase.instance.client
         .from('todos')
-        .update({'title': _titleController.text})
+        .update({
+          'title': _titleController.text,
+          'description': _descriptionController.text,
+        })
         .eq('id', _task!['id']);
+
+    setState(() {
+      _isEditing = false;
+    });
 
     widget.onTaskCompleted();
   }
 
-  Future<void> _updateDescription() async {
-    if (_task == null) return;
-
-    await Supabase.instance.client
-        .from('todos')
-        .update({'description': _descriptionController.text})
-        .eq('id', _task!['id']);
-
-    widget.onTaskCompleted();
+  void _cancelEdits() {
+    setState(() {
+      _titleController.text = _task?['title'] ?? '';
+      _descriptionController.text = _task?['description'] ?? '';
+      _isEditing = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Task", style: TextStyle(fontWeight: FontWeight.w600)),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child:
-              _task == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title Section
-                      const Text(
-                        "Task Title",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _titleController,
-                        decoration: InputDecoration(
-                          hintText: "Enter task title...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onChanged: (_) => _updateTaskTitle(),
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Description Section
-                      const Text(
-                        "Task Description",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _descriptionController,
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                          hintText: "Add more details here...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onChanged: (_) => _updateDescription(),
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Complete Task Button
-                      Center(
-                        child: FilledButton.icon(
-                          onPressed: () => completeTask(context, widget, _task),
-                          icon: const Icon(Icons.check_circle, size: 20),
-                          label: const Text(
-                            "Complete Task",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 20,
-                              horizontal: 30,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+        title: const Text(
+          "Task",
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
+      body:
+          _task == null
+              ? const Center(child: CircularProgressIndicator())
+              : LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Task Title",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              _isEditing
+                                  ? TextField(
+                                    controller: _titleController,
+                                    decoration: InputDecoration(
+                                      hintText: "Enter task title...",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  )
+                                  : Text(
+                                    _titleController.text,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                              const SizedBox(height: 30),
+                              const Text(
+                                "Task Description",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              _isEditing
+                                  ? TextField(
+                                    controller: _descriptionController,
+                                    maxLines: 5,
+                                    decoration: InputDecoration(
+                                      hintText: "Add more details here...",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  )
+                                  : Text(
+                                    _descriptionController.text,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                              const SizedBox(height: 30),
+                              const Spacer(), // This will push the buttons to the bottom
+                              // Buttons
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (_isEditing)
+                                    ElevatedButton.icon(
+                                      onPressed: _saveEdits,
+                                      icon: const Icon(Icons.save),
+                                      label: const Text("Save"),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 30,
+                                          vertical: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  if (_isEditing) const SizedBox(width: 20),
+                                  if (_isEditing)
+                                    TextButton(
+                                      onPressed: _cancelEdits,
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 30,
+                                          vertical: 20,
+                                        ),
+                                      ),
+                                      child: const Text("Cancel"),
+                                    ),
+                                  if (!_isEditing)
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isEditing = true;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.edit),
+                                      label: const Text("Edit"),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  if (!_isEditing) const SizedBox(width: 20),
+                                  if (!_isEditing)
+                                    FilledButton.icon(
+                                      onPressed:
+                                          () => completeTask(
+                                            context,
+                                            widget,
+                                            _task,
+                                          ),
+                                      icon: const Icon(Icons.check_circle),
+                                      label: const Text("Complete"),
+                                      style: FilledButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 14,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
     );
   }
 }
