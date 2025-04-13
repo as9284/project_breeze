@@ -35,6 +35,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   ThemeMode _themeMode = ThemeMode.light;
+  bool _isThemeLoaded = false;
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _MainAppState extends State<MainApp> {
     final isDark = prefs.getBool('isDarkMode') ?? false;
     setState(() {
       _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+      _isThemeLoaded = true;
     });
   }
 
@@ -60,6 +62,13 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isThemeLoaded) {
+      // Return a splash screen while theme is loading
+      return const MaterialApp(
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      );
+    }
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Breeze",
