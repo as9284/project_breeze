@@ -18,28 +18,52 @@ class LabeledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        isEditing
-            ? TextField(
-              controller: controller,
-              maxLines: maxLines,
-              decoration: InputDecoration(
-                hintText: hintText,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+    if (isEditing) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: controller,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hintText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            )
-            : Text(controller.text, style: const TextStyle(fontSize: 15)),
-      ],
-    );
+            ),
+          ),
+        ],
+      );
+    } else {
+      final text = controller.text.trim();
+      final isTitle = label == "Task Title";
+      final displayText =
+          text.isNotEmpty
+              ? text
+              : (isTitle ? hintText : "Add a description...");
+
+      return Align(
+        alignment: isTitle ? Alignment.center : Alignment.centerLeft,
+        child: Text(
+          displayText,
+          textAlign: isTitle ? TextAlign.center : TextAlign.left,
+          style: TextStyle(
+            fontSize: isTitle ? 22 : 15,
+            fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
+            fontStyle: text.isEmpty ? FontStyle.italic : FontStyle.normal,
+            color:
+                text.isEmpty
+                    ? Colors.grey
+                    : Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      );
+    }
   }
 }
 

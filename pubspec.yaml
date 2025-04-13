@@ -1,7 +1,7 @@
 name: breeze
 description: "Minimalistic and modern tasks app"
 publish_to: "none"
-version: 1.2.7
+version: 1.3.0
 
 environment:
   sdk: ^3.7.2
@@ -36,5 +36,5 @@ msix_config:
   display_name: Breeze
   publisher_display_name: AS
   identity_name: com.as.project-breeze
-  msix_version: 1.2.7.0
+  msix_version: 1.3.0.0
   logo_path: windows/runner/resources/app_icon.ico

@@ -149,61 +149,79 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
             "Task",
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
+          actionsPadding: EdgeInsets.only(right: 20),
+          actions: [
+            if (_task != null && _task!['is_complete'] == true)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                tooltip: "Delete",
+                onPressed: () => _confirmDelete(context),
+              )
+            else if (_isEditing) ...[
+              IconButton(
+                icon: const Icon(Icons.save),
+                tooltip: "Save",
+                onPressed: _saveEdits,
+              ),
+              const SizedBox(width: 10),
+              IconButton(
+                icon: const Icon(Icons.cancel),
+                tooltip: "Cancel",
+                onPressed: _cancelEdits,
+              ),
+            ] else ...[
+              IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: "Edit",
+                onPressed: () => setState(() => _isEditing = true),
+              ),
+              const SizedBox(width: 10),
+              IconButton(
+                icon: const Icon(Icons.check_circle),
+                tooltip: "Mark Complete",
+                onPressed: () => completeTask(context, widget, _task),
+              ),
+            ],
+          ],
         ),
+
         body:
             _task == null
                 ? const Center(child: CircularProgressIndicator())
                 : LayoutBuilder(
                   builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: IntrinsicHeight(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                LabeledTextField(
-                                  label: "Task Title",
-                                  controller: _titleController,
-                                  isEditing: _isEditing,
-                                  hintText: "Enter task title...",
-                                ),
-                                const SizedBox(height: 30),
-                                LabeledTextField(
-                                  label: "Task Description",
-                                  controller: _descriptionController,
-                                  isEditing: _isEditing,
-                                  hintText: "Add more details here...",
-                                  maxLines: 5,
-                                ),
-                                const Spacer(),
-                                Center(
-                                  child: TaskActionButtons(
-                                    isComplete: _task!['is_complete'] == true,
+                    return Stack(
+                      children: [
+                        SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  LabeledTextField(
+                                    label: "Task Title",
+                                    controller: _titleController,
                                     isEditing: _isEditing,
-                                    onSave: _saveEdits,
-                                    onCancel: _cancelEdits,
-                                    onEdit:
-                                        () => setState(() => _isEditing = true),
-                                    onComplete:
-                                        () => completeTask(
-                                          context,
-                                          widget,
-                                          _task,
-                                        ),
-                                    onDelete: () => _confirmDelete(context),
+                                    hintText: "Enter task title...",
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                              ],
+                                  const SizedBox(height: 10),
+                                  LabeledTextField(
+                                    label: "Task Description",
+                                    controller: _descriptionController,
+                                    isEditing: _isEditing,
+                                    hintText: "Add a description...",
+                                    maxLines: 17,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     );
                   },
                 ),
