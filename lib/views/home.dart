@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
                     return ListView.separated(
                       padding: const EdgeInsets.only(
-                        top: 80,
+                        top: 100,
                         bottom: 90,
                         left: 10,
                         right: 10,
