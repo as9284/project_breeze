@@ -78,15 +78,35 @@ class TaskListTab extends StatelessWidget {
 
             return Opacity(
               opacity: showCompleted ? 0.6 : 1.0,
-              child: FilledButton.tonal(
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 30,
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: InkWell(
+                  customBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  onTap: () => _openTaskPage(context, task),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(task['title'].toUpperCase(), style: textStyle),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Due: ${task['due_date'] ?? 'No due date'}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                onPressed: () => _openTaskPage(context, task),
-                child: Text(task['title'].toUpperCase(), style: textStyle),
               ),
             );
           },
