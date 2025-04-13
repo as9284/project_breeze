@@ -23,33 +23,28 @@ void main() async {
     await DesktopWindow.setMaxWindowSize(const Size(600, 900));
   }
 
-  runApp(const MainApp());
+  final prefs = await SharedPreferences.getInstance();
+  final isDark = prefs.getBool('isDarkMode') ?? false;
+
+  runApp(MainApp(initialThemeMode: isDark ? ThemeMode.dark : ThemeMode.light));
 }
 
 class MainApp extends StatefulWidget {
-  const MainApp({super.key});
+  final ThemeMode initialThemeMode;
+
+  const MainApp({super.key, required this.initialThemeMode});
 
   @override
   State<MainApp> createState() => _MainAppState();
 }
 
 class _MainAppState extends State<MainApp> {
-  ThemeMode _themeMode = ThemeMode.light;
-  bool _isThemeLoaded = false;
+  late ThemeMode _themeMode;
 
   @override
   void initState() {
     super.initState();
-    _loadTheme();
-  }
-
-  Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isDark = prefs.getBool('isDarkMode') ?? false;
-    setState(() {
-      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-      _isThemeLoaded = true;
-    });
+    _themeMode = widget.initialThemeMode;
   }
 
   Future<void> _toggleTheme(bool isDark) async {
@@ -62,13 +57,6 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isThemeLoaded) {
-      // Return a splash screen while theme is loading
-      return const MaterialApp(
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
-      );
-    }
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Breeze",
