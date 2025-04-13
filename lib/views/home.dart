@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:ui';
-import 'package:breeze/core/utils/task_functions.dart';
-import 'package:breeze/views/task_page.dart';
+import 'package:breeze/core/widgets/add_task_bar.dart';
+import 'package:breeze/core/widgets/search_bar.dart';
+import 'package:breeze/core/widgets/task_list_tab.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,20 +19,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   final FocusNode _searchFocusNode = FocusNode();
   final FocusNode _taskFocusNode = FocusNode();
-
-  void _openTaskPage(Map<String, dynamic> task) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => TaskDetailPage(
-              taskId: task['id'],
-              title: task['title'],
-              onTaskCompleted: _reloadTasks,
-            ),
-      ),
-    );
-  }
 
   Future<void> _reloadTasks() async {
     setState(() {});
@@ -55,7 +41,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return DefaultTabController(
-      length: 2, // 👈 Two tabs: Tasks & Completed
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -64,9 +50,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
           actions: [
             IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "/settings");
-              },
+              onPressed: () => Navigator.pushNamed(context, "/settings"),
               icon: const Icon(Icons.settings),
             ),
           ],
@@ -78,246 +62,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           children: [
             TabBarView(
               children: [
-                // ✅ Tasks Tab
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: fetchTodos(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final todos = snapshot.data ?? [];
-
-                    // Filter for tasks not completed
-                    final filtered =
-                        todos
-                            .where(
-                              (task) =>
-                                  !(task['is_complete'] ?? false) &&
-                                  task['title'].toLowerCase().contains(
-                                    _searchQuery.toLowerCase(),
-                                  ),
-                            )
-                            .toList();
-
-                    if (filtered.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "No tasks found.",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      );
-                    }
-
-                    return ListView.separated(
-                      padding: const EdgeInsets.only(
-                        top: 100,
-                        bottom: 90,
-                        left: 10,
-                        right: 10,
-                      ),
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) {
-                        final task = filtered[index];
-                        return FilledButton.tonal(
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 20,
-                              horizontal: 30,
-                            ),
-                          ),
-                          onPressed: () {
-                            _openTaskPage(task);
-                          },
-                          child: Text(
-                            task['title'].toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        );
-                      },
-                      separatorBuilder:
-                          (context, index) => const SizedBox(height: 15),
-                    );
-                  },
+                TaskListTab(
+                  showCompleted: false,
+                  searchQuery: _searchQuery,
+                  onReload: _reloadTasks,
                 ),
-
-                // ✅ Completed Tab
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: fetchTodos(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final todos = snapshot.data ?? [];
-
-                    // Filter only completed tasks
-                    final completed =
-                        todos
-                            .where(
-                              (task) =>
-                                  (task['is_complete'] ?? false) &&
-                                  task['title'].toLowerCase().contains(
-                                    _searchQuery.toLowerCase(),
-                                  ),
-                            )
-                            .toList();
-
-                    if (completed.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "No completed tasks yet.",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      );
-                    }
-
-                    return ListView.separated(
-                      padding: const EdgeInsets.only(
-                        top: 100,
-                        bottom: 90,
-                        left: 10,
-                        right: 10,
-                      ),
-                      itemCount: completed.length,
-                      itemBuilder: (context, index) {
-                        final task = completed[index];
-                        return Opacity(
-                          opacity: 0.6,
-                          child: FilledButton.tonal(
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 20,
-                                horizontal: 30,
-                              ),
-                            ),
-                            onPressed: () {
-                              _openTaskPage(task);
-                            },
-                            child: Text(
-                              task['title'].toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                overflow: TextOverflow.ellipsis,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      separatorBuilder:
-                          (context, index) => const SizedBox(height: 15),
-                    );
-                  },
+                TaskListTab(
+                  showCompleted: true,
+                  searchQuery: _searchQuery,
+                  onReload: _reloadTasks,
                 ),
               ],
             ),
-
-            // 🔍 Search Bar (above TabView)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            isDark
-                                ? Colors.black.withValues(alpha: 0.01)
-                                : const Color.fromRGBO(245, 250, 252, 0.8),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextField(
-                        focusNode: _searchFocusNode,
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search tasks...',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: const Color.fromRGBO(245, 250, 252, 0),
-                        ),
-                        onChanged: _onSearchChanged,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            SearchBarWidget(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              onChanged: _onSearchChanged,
+              isDark: isDark,
             ),
-
-            // ➕ Task Input (bottom area)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: ClipRRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    color:
-                        isDark
-                            ? Colors.black.withValues(alpha: 0.01)
-                            : const Color.fromRGBO(245, 250, 252, 0.8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            focusNode: _taskFocusNode,
-                            controller: _taskController,
-                            onSubmitted:
-                                (_) async => {
-                                  await addTask(_taskController),
-                                  await _reloadTasks(),
-                                  FocusScope.of(context).unfocus(),
-                                },
-                            decoration: InputDecoration(
-                              hintText: "Add a task...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: const Color.fromRGBO(245, 250, 252, 0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton.icon(
-                          icon: const Icon(Icons.add),
-                          label: const Text("Add"),
-                          onPressed: () async {
-                            await addTask(_taskController);
-                            await _reloadTasks();
-                            FocusScope.of(context).unfocus();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            AddTaskBar(
+              controller: _taskController,
+              focusNode: _taskFocusNode,
+              onTaskAdded: _reloadTasks,
+              isDark: isDark,
             ),
           ],
         ),
