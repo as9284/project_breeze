@@ -12,7 +12,6 @@ import 'package:desktop_window/desktop_window.dart';
 import 'dart:io';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

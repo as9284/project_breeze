@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsPage extends StatefulWidget {
   final void Function(bool) onThemeChanged;
@@ -35,6 +36,12 @@ class _SettingsPageState extends State<SettingsPage> {
     if (!await launchUrl(_url)) {
       throw Exception('Could not launch $_url');
     }
+  }
+
+  Future<String> getPackageVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    return packageInfo.version;
   }
 
   @override
@@ -159,10 +166,29 @@ class _SettingsPageState extends State<SettingsPage> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text("App Version"),
-                  subtitle: const Text("1.2.6"),
+                FutureBuilder<String>(
+                  future: getPackageVersion(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text("App Version"),
+                        subtitle: const Text("Loading..."),
+                      );
+                    } else if (snapshot.hasError) {
+                      return ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text("App Version"),
+                        subtitle: Text("Error: ${snapshot.error}"),
+                      );
+                    } else {
+                      return ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text("App Version"),
+                        subtitle: Text(snapshot.data ?? "Unknown"),
+                      );
+                    }
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.code),
