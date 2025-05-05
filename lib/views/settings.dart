@@ -1,4 +1,5 @@
 import 'package:breeze/core/utils/auth_functions.dart';
+import 'package:breeze/core/utils/update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -42,6 +43,45 @@ class _SettingsPageState extends State<SettingsPage> {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
     return packageInfo.version;
+  }
+
+  Future<void> _checkForUpdates(BuildContext context) async {
+    final isAvailable = await UpdateService.isUpdateAvailable();
+    final latestVersion = await UpdateService.getLatestVersion();
+
+    if (!context.mounted) return;
+
+    if (isAvailable) {
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Update Available"),
+              content: Text("A new version ($latestVersion) is available."),
+              actions: [
+                TextButton(
+                  child: const Text("Later"),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: const Text("Download"),
+                  onPressed: () {
+                    launchUrl(
+                      Uri.parse(
+                        "https://github.com/as9284/project_breeze/releases/latest",
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You're on the latest version.")),
+      );
+    }
   }
 
   @override
@@ -196,6 +236,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   onTap: () async {
                     _launchUrl();
                   },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.system_update),
+                  title: const Text("Check for Updates"),
+                  onTap: () => _checkForUpdates(context),
                 ),
               ],
             ),
