@@ -1,8 +1,10 @@
 import 'package:breeze/core/utils/task_functions.dart';
+import 'package:breeze/core/widgets/labeled_date_field.dart';
+import 'package:breeze/core/widgets/task_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import "../core/widgets/task_widgets.dart";
 
 class TaskDetailPage extends StatefulWidget {
   final VoidCallback onTaskCompleted;
@@ -26,6 +28,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   Map<String, dynamic>? _task;
   bool _isEditing = false;
   late final FocusNode _focusNode;
+  DateTime? _dueDate;
 
   @override
   void initState() {
@@ -53,6 +56,10 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         _task = result;
         _titleController.text = result['title'] ?? '';
         _descriptionController.text = result['description'] ?? '';
+        _dueDate =
+            result['due_date'] != null
+                ? DateTime.tryParse(result['due_date'])?.toLocal()
+                : null;
       });
     }
   }
@@ -65,13 +72,17 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
     await Supabase.instance.client
         .from('todos')
-        .update({'title': updatedTitle, 'description': updatedDescription})
+        .update({
+          'title': updatedTitle,
+          'description': updatedDescription,
+          'due_date': _dueDate?.toUtc().toIso8601String(),
+        })
         .eq('id', _task!['id']);
 
-    // Update local task cache
     setState(() {
       _task!['title'] = updatedTitle;
       _task!['description'] = updatedDescription;
+      _task!['due_date'] = _dueDate?.toIso8601String();
       _isEditing = false;
     });
 
@@ -82,8 +93,24 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     setState(() {
       _titleController.text = _task?['title'] ?? '';
       _descriptionController.text = _task?['description'] ?? '';
+      _dueDate =
+          _task?['due_date'] != null
+              ? DateTime.tryParse(_task!['due_date'])?.toLocal()
+              : null;
       _isEditing = false;
     });
+  }
+
+  Future<void> _deleteTask() async {
+    if (_task == null) return;
+
+    await Supabase.instance.client
+        .from('todos')
+        .delete()
+        .eq('id', _task!['id']);
+    widget.onTaskCompleted();
+
+    Navigator.pop(context);
   }
 
   void _confirmDelete(BuildContext context) async {
@@ -119,16 +146,36 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     }
   }
 
-  Future<void> _deleteTask() async {
-    if (_task == null) return;
+  Future<void> _pickDueDate() async {
+    final now = DateTime.now();
+    final safeInitialDate =
+        (_dueDate != null && _dueDate!.isAfter(now)) ? _dueDate! : now;
 
-    await Supabase.instance.client
-        .from('todos')
-        .delete()
-        .eq('id', _task!['id']);
-    widget.onTaskCompleted();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: safeInitialDate,
+      firstDate: now,
+      lastDate: DateTime(2100),
+    );
 
-    Navigator.pop(context);
+    if (pickedDate != null) {
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_dueDate ?? DateTime.now()),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _dueDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
   }
 
   @override
@@ -149,7 +196,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
             "Task",
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
-          actionsPadding: EdgeInsets.only(right: 20),
+          actionsPadding: const EdgeInsets.only(right: 20),
           actions: [
             if (_task != null && _task!['is_complete'] == true)
               IconButton(
@@ -184,7 +231,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
             ],
           ],
         ),
-
         body:
             _task == null
                 ? const Center(child: CircularProgressIndicator())
@@ -193,7 +239,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     return Stack(
                       children: [
                         SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                          padding: const EdgeInsets.only(left: 20, right: 20),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               minHeight: constraints.maxHeight,
@@ -214,8 +260,17 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                                     controller: _descriptionController,
                                     isEditing: _isEditing,
                                     hintText: "Add a description...",
-                                    maxLines: 17,
+                                    maxLines: 12,
                                   ),
+                                  Spacer(),
+                                  SizedBox(height: 20),
+                                  LabeledDateField(
+                                    label: "Due Date",
+                                    selectedDate: _dueDate,
+                                    isEditing: _isEditing,
+                                    onTap: _pickDueDate,
+                                  ),
+                                  SizedBox(height: 20),
                                 ],
                               ),
                             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:breeze/core/utils/task_functions.dart';
 import 'package:breeze/views/task_page.dart';
 
@@ -26,6 +27,17 @@ class TaskListTab extends StatelessWidget {
             ),
       ),
     );
+  }
+
+  String _formatDueDate(String? dueDateStr) {
+    if (dueDateStr == null || dueDateStr.isEmpty) return 'No due date';
+    try {
+      final dueDateUtc = DateTime.parse(dueDateStr);
+      final dueDateLocal = dueDateUtc.toLocal();
+      return DateFormat('MMM d, y • h:mm a').format(dueDateLocal);
+    } catch (_) {
+      return 'Invalid date';
+    }
   }
 
   @override
@@ -96,7 +108,7 @@ class TaskListTab extends StatelessWidget {
                         Text(task['title'].toUpperCase(), style: textStyle),
                         const SizedBox(height: 8),
                         Text(
-                          'Due: ${task['due_date'] ?? 'No due date'}',
+                          'Due: ${_formatDueDate(task['due_date'])}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
